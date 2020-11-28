@@ -9,12 +9,14 @@ name: Upload Release Asset
 jobs:
   build:
     name: Upload Release Asset
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Build project # This would actually build your project, using zip for an example artifact
+      - name: Build project 
         run: cargo build --all-features --bin polyhorn-cli --release
+      - name: Zip artifact
+        run: zip -j polyhorn-cli.zip target/release/polyhorn-cli
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -32,6 +34,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./my-artifact.zip
-          asset_name: my-artifact.zip
+          asset_path: ./polyhorn-cli.zip
+          asset_name: polyhorn-cli-x86_64-apple-darwin.zip
           asset_content_type: application/zip
