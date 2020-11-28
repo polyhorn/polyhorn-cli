@@ -8,9 +8,24 @@ use crate::Config;
 
 /// iOS specific implementation of the `polyhorn test` command.
 pub fn test(config: Config) {
-    let device = select_device(Simctl::new().list().unwrap().devices());
+    let list = Simctl::new().list().unwrap();
+    let device = select_device(list.devices());
 
-    let (addr, _server) = crate::test::serve(device.clone());
+    let (addr, _server) = crate::test::serve(crate::test::Device::IOS {
+        device: device.clone(),
+        runtime: list
+            .runtimes()
+            .iter()
+            .find(|runtime| runtime.identifier == device.runtime_identifier)
+            .unwrap()
+            .to_owned(),
+        device_type: list
+            .device_types()
+            .iter()
+            .find(|device_type| device_type.identifier == device.device_type_identifier)
+            .unwrap()
+            .to_owned(),
+    });
 
     let result = Executioner::execute(
         &[

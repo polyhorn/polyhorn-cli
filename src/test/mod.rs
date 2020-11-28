@@ -3,13 +3,20 @@
 use futures::channel::oneshot;
 use futures::FutureExt;
 use serde::Deserialize;
-use simctl::Device;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
 use warp::Filter;
 
-pub mod snapshot;
+mod device;
+mod error;
+mod output;
+mod snapshot;
+
+pub use device::Device;
+pub use error::Error;
+pub use output::Output;
+pub use snapshot::Metadata;
 
 /// Disposable that can be dropped to stop a test feedback server.
 pub struct Disposable(Option<oneshot::Sender<mpsc::Sender<()>>>);
@@ -43,9 +50,7 @@ impl Drop for Disposable {
 }
 
 fn handler(device: Device) -> impl warp::Filter<Extract = impl warp::Reply> + Clone {
-    let output = Arc::new(Mutex::new(snapshot::Output::new(
-        "target/polyhorn-snapshots",
-    )));
+    let output = Arc::new(Mutex::new(Output::new("target/polyhorn-snapshots")));
 
     warp::path!("polyhorn" / "tests" / String)
         .and(warp::post())
@@ -59,23 +64,13 @@ fn handler(device: Device) -> impl warp::Filter<Extract = impl warp::Reply> + Cl
                     test_name,
                     snapshot_name,
                 } => {
-                    let screenshot = device
-                        .io()
-                        .screenshot(
-                            simctl::io::ImageType::Png,
-                            simctl::io::Display::Internal,
-                            simctl::io::Mask::Ignored,
-                        )
-                        .unwrap();
+                    let screenshot = device.screenshot().unwrap();
 
                     output.lock().unwrap().store(
                         snapshot::Metadata {
-                            device: Some(device.name.to_owned()),
-                            os: Some("iOS".to_owned()),
-                            os_version: Some("14.0".to_owned()),
-                            os_appearance: Some("light".to_owned()),
                             test_name: Some(test_name),
                             snapshot_name: Some(snapshot_name),
+                            ..device.metadata()
                         },
                         screenshot,
                     );
