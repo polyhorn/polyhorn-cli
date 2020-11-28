@@ -22,14 +22,16 @@ pub struct Target<'a> {
 }
 
 impl<'a> Target<'a> {
+    const ALL: [Target<'static>; 4] = [
+        Target::armeabi_v7a(),
+        Target::arm64_v8a(),
+        Target::x86(),
+        Target::x86_64(),
+    ];
+
     /// Returns all available Android targets.
     pub const fn all() -> &'static [Target<'static>] {
-        &[
-            Target::armeabi_v7a(),
-            Target::arm64_v8a(),
-            Target::x86(),
-            Target::x86_64(),
-        ]
+        &Self::ALL
     }
 
     /// Returns a target configuration for the `armeabi-v7a` ABI.
