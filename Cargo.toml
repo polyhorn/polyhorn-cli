@@ -5,7 +5,7 @@ name = "polyhorn-cli"
 version = "0.4.0"
 license = "MIT"
 description = "Library with CLI for Polyhorn."
-repository = "https://github.com/polyhorn/polyhorn-cli/tree"
+repository = "https://github.com/polyhorn/polyhorn-cli"
 
 [[bin]]
 name = "polyhorn-cli"
