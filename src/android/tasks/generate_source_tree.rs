@@ -1,5 +1,3 @@
-use std::fs::File;
-
 use super::{AndroidContext, AndroidError};
 use crate::core::{Manager, Task};
 use crate::template::SourceTree;
@@ -127,7 +125,9 @@ impl Task for GenerateSourceTree {
             }
         }
 
+        #[cfg(unix)]
         {
+            use std::fs::File;
             use std::os::unix::fs::PermissionsExt;
 
             let mut gradlew_path = destination_path.clone();

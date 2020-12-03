@@ -67,7 +67,7 @@ enum SubCommand {
 /// calls `polyhorn_cli::cli()`.
 pub fn cli() {
     #[cfg(windows)]
-    let enabled = ansi_term::enable_ansi_support();
+    let _enabled = ansi_term::enable_ansi_support();
 
     let opts = Opts::parse();
 

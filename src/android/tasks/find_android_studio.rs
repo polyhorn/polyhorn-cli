@@ -1,3 +1,5 @@
+#![allow(unused_imports, unused_variables, unused_mut)]
+
 use std::path::Path;
 
 use super::{AndroidContext, AndroidError};
