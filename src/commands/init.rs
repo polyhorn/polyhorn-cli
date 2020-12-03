@@ -52,12 +52,28 @@ impl Init {
         Ok(())
     }
 
+    fn query_latest_version(&self) -> Result<String, Error> {
+        let output = Command::new("cargo")
+            .args(&["search", "polyhorn", "--limit", "1"])
+            .output()?;
+
+        assert!(output.status.success());
+
+        let output = String::from_utf8(output.stdout).unwrap();
+
+        assert!(output.starts_with("polyhorn = \""));
+
+        Ok(output.split('"').nth(1).unwrap().to_owned())
+    }
+
     fn write_cargo(&self) -> Result<(), Error> {
+        let version = self.query_latest_version()?;
+
         let mut file = File::create("Cargo.toml").unwrap();
         file.write_fmt(format_args!(
             include_str!("../../template/Cargo.toml.tmpl"),
             name = self.name,
-            version = env!("CARGO_PKG_VERSION"),
+            version = version,
         ))
     }
 
